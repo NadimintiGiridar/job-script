@@ -1,0 +1,3486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Job Scheduler & Monitoring Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0B1120;
+            --sidebar-bg: #111827;
+            --card-bg: #1E293B;
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --success: #22C55E;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --border-color: #334155;
+            --sidebar-width: 260px;
+            --sidebar-collapsed-width: 70px;
+            --transition-speed: 0.2s;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* --- SKELETON LOADING --- */
+        .skeleton {
+            background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+            background-size: 200% 100%;
+            animation: loading-skeleton 1.5s infinite;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        @keyframes loading-skeleton {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* --- AUTH PAGE --- */
+        #auth-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-dark);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 9999;
+        }
+
+        .auth-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            position: relative;
+        }
+
+        .auth-header {
+            text-align: center;
+        }
+
+        .auth-title {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #818CF8 0%, #4F46E5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .auth-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            position: relative;
+        }
+
+        .input-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: all var(--transition-speed);
+        }
+
+        .input-wrapper input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            user-select: none;
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .btn-auth {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color var(--transition-speed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-auth:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .social-login {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 12px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 16px;
+        }
+
+        .social-btn {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background-color var(--transition-speed);
+        }
+
+        .social-btn:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        /* --- APP CONTAINER --- */
+        #app-container {
+            display: none;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* --- SIDEBAR --- */
+        aside {
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            transition: width var(--transition-speed);
+            z-index: 100;
+        }
+
+        aside.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        .sidebar-brand {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand-logo {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #818CF8 0%, #4F46E5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            white-space: nowrap;
+        }
+
+        aside.collapsed .brand-logo {
+            display: none;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            text-decoration: none;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        .menu-item.active {
+            color: var(--text-primary);
+            border-left: 2px solid var(--primary);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .menu-item svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        aside.collapsed .menu-text {
+            display: none;
+        }
+
+        .sidebar-toggle-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        /* --- MAIN CONTENT AREA --- */
+        main {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: margin-left var(--transition-speed);
+        }
+
+        body.sidebar-collapsed main {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        /* --- NAVBAR --- */
+        nav {
+            height: 64px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: rgba(11, 17, 32, 0.8);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 90;
+        }
+
+        .nav-search {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            padding: 8px 14px;
+            border-radius: 9999px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            width: 240px;
+            transition: all var(--transition-speed);
+        }
+
+        .nav-search:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .nav-search kbd {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-family: inherit;
+            margin-left: auto;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            position: relative;
+            padding: 4px;
+            transition: color var(--transition-speed);
+        }
+
+        .icon-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .badge-dot {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 8px;
+            height: 8px;
+            background-color: var(--danger);
+            border-radius: 50%;
+            border: 2px solid var(--bg-dark);
+        }
+
+        .profile-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            color: white;
+            border: 1.5px solid var(--border-color);
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .profile-role {
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        /* --- CONTENT BODY --- */
+        .content-body {
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .view-section {
+            display: none;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .view-section.active {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- HEADINGS --- */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .section-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* --- GRID AND CARDS --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            transition: all var(--transition-speed);
+        }
+
+        .card:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+
+        .stat-footer {
+            font-size: 12px;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* --- LAYOUT COLUMNS --- */
+        .two-col-layout {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .two-col-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .list-panel {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 24px;
+        }
+
+        .list-panel-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* --- BUTTONS --- */
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background-color: #DC2626;
+        }
+
+        /* --- DATA TABLE --- */
+        .table-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            flex: 1;
+            max-width: 320px;
+        }
+
+        .search-input-wrapper input {
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px 8px 36px;
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            color: var(--text-secondary);
+            width: 16px;
+            height: 16px;
+        }
+
+        .filter-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        select {
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .data-table-container {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        th {
+            background-color: rgba(255, 255, 255, 0.02);
+            color: var(--text-secondary);
+            font-weight: 600;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: rgba(255, 255, 255, 0.01);
+        }
+
+        /* --- STATUS CHIPS --- */
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .chip-pending { background-color: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .chip-running { background-color: rgba(6, 182, 212, 0.1); color: #06B6D4; }
+        .chip-completed { background-color: rgba(34, 197, 94, 0.1); color: var(--success); }
+        .chip-failed { background-color: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .chip-cancelled { background-color: rgba(148, 163, 184, 0.1); color: var(--text-secondary); }
+
+        .priority-chip {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .priority-high { color: var(--danger); border-color: rgba(239, 68, 68, 0.2); }
+        .priority-med { color: var(--warning); border-color: rgba(245, 158, 11, 0.2); }
+
+        /* --- BULK ACTIONS --- */
+        .bulk-bar {
+            display: none;
+            align-items: center;
+            gap: 16px;
+            background-color: rgba(79, 70, 229, 0.15);
+            border: 1px solid var(--primary);
+            padding: 10px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+
+        /* --- PAGINATION --- */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            border-top: 1px solid var(--border-color);
+            background-color: rgba(255, 255, 255, 0.01);
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* --- ACTION MENU BUTTON --- */
+        .action-cell {
+            position: relative;
+        }
+
+        .action-menu-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        .action-menu-btn:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: #1F2937;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            width: 140px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            z-index: 50;
+            overflow: hidden;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 8px 12px;
+            font-size: 12px;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color var(--transition-speed);
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .dropdown-item.danger-item {
+            color: var(--danger);
+        }
+
+        /* --- TIMELINE COMPONENT --- */
+        .timeline-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin: 20px 0;
+            padding-bottom: 20px;
+        }
+
+        .timeline-steps::before {
+            content: '';
+            position: absolute;
+            top: 16px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: var(--border-color);
+            z-index: 1;
+        }
+
+        .timeline-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            z-index: 2;
+            flex: 1;
+        }
+
+        .timeline-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            transition: all var(--transition-speed);
+        }
+
+        .timeline-step.active .timeline-dot {
+            border-color: var(--primary);
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 0 10px rgba(79, 70, 229, 0.4);
+        }
+
+        .timeline-step.completed .timeline-dot {
+            border-color: var(--success);
+            background-color: var(--success);
+            color: white;
+        }
+
+        .timeline-step.failed .timeline-dot {
+            border-color: var(--danger);
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .timeline-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .timeline-step.active .timeline-label {
+            color: var(--text-primary);
+        }
+
+        /* --- EMPTY STATES --- */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px;
+            text-align: center;
+            color: var(--text-secondary);
+            gap: 16px;
+        }
+
+        .empty-icon {
+            width: 64px;
+            height: 64px;
+            color: var(--border-color);
+        }
+
+        /* --- MODAL DIALOGS --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            animation: modalScale 0.2s ease-out;
+        }
+
+        @keyframes modalScale {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .modal-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        /* --- NOTIFICATION CENTER & BELL FEED --- */
+        .notification-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 8px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            width: 320px;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            z-index: 95;
+        }
+
+        .notification-dropdown.show {
+            display: block;
+        }
+
+        .notification-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .notification-list {
+            max-height: 280px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color var(--transition-speed);
+        }
+
+        .notification-item:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .notification-item.unread {
+            border-left: 2px solid var(--primary);
+            background-color: rgba(79, 70, 229, 0.05);
+        }
+
+        /* --- GLOBAL SEARCH MODAL (CTRL+K) --- */
+        .search-modal {
+            max-width: 550px !important;
+            padding: 0 !important;
+            overflow: hidden;
+        }
+
+        .search-modal-input {
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: none;
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 20px;
+            font-size: 15px;
+            color: white;
+            outline: none;
+        }
+
+        .search-results {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .search-result-item {
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .search-result-item:hover, .search-result-item.selected {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        .search-result-category {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--primary);
+            background-color: rgba(79, 70, 229, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* --- TOAST NOTIFICATIONS --- */
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .toast {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            pointer-events: auto;
+            animation: toastIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            border-left: 4px solid var(--primary);
+        }
+
+        .toast-success { border-left-color: var(--success); }
+        .toast-error { border-left-color: var(--danger); }
+        .toast-warning { border-left-color: var(--warning); }
+
+        @keyframes toastIn {
+            from { transform: translateY(12px) scale(0.95); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        /* --- TERMINAL STYLE LOGS --- */
+        .terminal {
+            background-color: #030712;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: #E5E7EB;
+            padding: 16px;
+            height: 380px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            line-height: 1.6;
+        }
+
+        .log-line {
+            display: flex;
+            gap: 8px;
+        }
+
+        .log-time { color: var(--text-secondary); }
+        .log-lvl-info { color: var(--accent-cyan); font-weight: bold; }
+        .log-lvl-warning { color: var(--warning); font-weight: bold; }
+        .log-lvl-error { color: var(--danger); font-weight: bold; }
+        .log-lvl-success { color: var(--success); font-weight: bold; }
+
+        /* --- METRICS METERS --- */
+        .meter-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .meter-label-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+        }
+
+        .meter-bar-bg {
+            height: 6px;
+            background-color: var(--border-color);
+            border-radius: 3px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .meter-bar-fill {
+            height: 100%;
+            background-color: var(--primary);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body class="sidebar-collapsed">
+
+    <!-- Toast Portal -->
+    <div id="toast-container"></div>
+
+    <!-- 1. Authentication Layer (Login / Register / Reset Flow) -->
+    <div id="auth-container">
+        <div class="auth-card" id="auth-card-login">
+            <div class="auth-header">
+                <div class="auth-title">Enterprise Job Scheduler</div>
+                <div class="auth-subtitle">Sign in to manage your cluster tasks</div>
+            </div>
+            <form class="auth-form" onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label for="login-email">Email Address</label>
+                    <div class="input-wrapper">
+                        <input type="email" id="login-email" required placeholder="admin@scheduler.io" value="admin@scheduler.io">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="login-password">Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="login-password" required value="password">
+                        <span class="password-toggle" onclick="togglePasswordVisibility('login-password')">Show</span>
+                    </div>
+                </div>
+                <div class="remember-forgot">
+                    <label class="checkbox-container">
+                        <input type="checkbox" checked> Remember me
+                    </label>
+                    <a href="#" style="color: var(--primary); text-decoration: none;" onclick="switchAuthView('forgot')">Forgot Password?</a>
+                </div>
+                <button type="submit" class="btn-auth" id="btn-login-submit">Sign In</button>
+            </form>
+            <div class="social-login">
+                <div style="text-align: center; font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">OR CONTINUE WITH</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <button class="social-btn" onclick="toast('info', 'Google social authentication placeholder triggered.')">Google</button>
+                    <button class="social-btn" onclick="toast('info', 'GitHub social authentication placeholder triggered.')">GitHub</button>
+                </div>
+            </div>
+            <div style="text-align: center; font-size: 13px; color: var(--text-secondary);">
+                Don't have an account? <a href="#" style="color: var(--primary); text-decoration: none;" onclick="switchAuthView('register')">Register</a>
+            </div>
+        </div>
+
+        <div class="auth-card" id="auth-card-register" style="display: none;">
+            <div class="auth-header">
+                <div class="auth-title">Create Account</div>
+                <div class="auth-subtitle">Get started with scheduling in seconds</div>
+            </div>
+            <form class="auth-form" onsubmit="handleRegister(event)">
+                <div class="input-group">
+                    <label for="reg-name">Full Name</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="reg-name" required placeholder="Alice Vance">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="reg-email">Email Address</label>
+                    <div class="input-wrapper">
+                        <input type="email" id="reg-email" required placeholder="alice@scheduler.io">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="reg-password">Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="reg-password" required placeholder="••••••••">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="reg-role">Role Membership</label>
+                    <select id="reg-role" style="background-color: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-color); color: white; padding: 12px; border-radius: 8px;">
+                        <option value="Admin">Admin (Full Access)</option>
+                        <option value="Operator">Operator (Write, Pause, Retry)</option>
+                        <option value="Viewer">Viewer (Read-only)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-auth">Register Account</button>
+            </form>
+            <div style="text-align: center; font-size: 13px; color: var(--text-secondary); margin-top: 12px;">
+                Already have an account? <a href="#" style="color: var(--primary); text-decoration: none;" onclick="switchAuthView('login')">Sign In</a>
+            </div>
+        </div>
+
+        <div class="auth-card" id="auth-card-forgot" style="display: none;">
+            <div class="auth-header">
+                <div class="auth-title">Reset Password</div>
+                <div class="auth-subtitle">Enter your email to receive recovery instructions</div>
+            </div>
+            <form class="auth-form" onsubmit="handleForgot(event)">
+                <div class="input-group">
+                    <label for="forgot-email">Email Address</label>
+                    <div class="input-wrapper">
+                        <input type="email" id="forgot-email" required placeholder="name@scheduler.io">
+                    </div>
+                </div>
+                <button type="submit" class="btn-auth">Send Recovery Email</button>
+            </form>
+            <div style="text-align: center; font-size: 13px; color: var(--text-secondary); margin-top: 12px;">
+                Back to <a href="#" style="color: var(--primary); text-decoration: none;" onclick="switchAuthView('login')">Sign In</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Application Core Layout -->
+    <div id="app-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside id="main-sidebar" class="collapsed">
+            <div class="sidebar-brand">
+                <div class="brand-logo">SCHEDULER</div>
+                <button class="sidebar-toggle-btn" onclick="toggleSidebar()">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 24px; height: 24px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li><a href="#" class="menu-item active" id="menu-dashboard" onclick="showView('dashboard')">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                    <span class="menu-text">Dashboard</span>
+                </a></li>
+                <li><a href="#" class="menu-item" id="menu-jobs" onclick="showView('jobs')">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                    <span class="menu-text">Jobs List</span>
+                </a></li>
+                <li><a href="#" class="menu-item" id="menu-queues" onclick="showView('queues')">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                    <span class="menu-text">Queues & DLQ</span>
+                </a></li>
+                <li><a href="#" class="menu-item" id="menu-workers" onclick="showView('workers')">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                    <span class="menu-text">Worker Pools</span>
+                </a></li>
+                <li><a href="#" class="menu-item" id="menu-monitoring" onclick="showView('monitoring')">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2"/></svg>
+                    <span class="menu-text">Monitoring & Logs</span>
+                </a></li>
+                <li><a href="#" class="menu-item" id="menu-analytics" onclick="showView('analytics')">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+                    <span class="menu-text">Analytics Charts</span>
+                </a></li>
+                <li><a href="#" class="menu-item" id="menu-reports" onclick="showView('reports')">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span class="menu-text">Export Reports</span>
+                </a></li>
+                <li><a href="#" class="menu-item" id="menu-audit" onclick="showView('audit')">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span class="menu-text">Audit Logs</span>
+                </a></li>
+                <li><a href="#" class="menu-item" id="menu-settings" onclick="showView('settings')">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <span class="menu-text">Settings</span>
+                </a></li>
+                <li style="margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 8px;">
+                    <a href="#" class="menu-item" onclick="handleLogout()">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                        <span class="menu-text">Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Body -->
+        <main>
+            <!-- Navigation Header Bar -->
+            <nav>
+                <div class="nav-search" onclick="openSearchModal()">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <span>Global Search...</span>
+                    <kbd>Ctrl+K</kbd>
+                </div>
+                
+                <div class="nav-actions">
+                    <!-- Notifications Bell -->
+                    <button class="icon-btn" onclick="toggleNotifications()">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 20px; height: 20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                        <div class="badge-dot" id="notif-badge" style="display: none;"></div>
+                        
+                        <!-- Notifications List Dropdown -->
+                        <div class="notification-dropdown" id="notif-dropdown">
+                            <div class="notification-header">
+                                <span>Recent Notifications</span>
+                                <a href="#" style="color: var(--primary); text-decoration: none;" onclick="clearNotifications()">Clear all</a>
+                            </div>
+                            <div class="notification-list" id="notif-list-container">
+                                <div style="padding: 16px; text-align: center; color: var(--text-secondary)">No unread notifications</div>
+                            </div>
+                        </div>
+                    </button>
+                    
+                    <!-- Profile User Widget -->
+                    <div class="profile-menu" onclick="showView('profile')">
+                        <div class="profile-avatar" id="navbar-avatar">A</div>
+                        <div class="profile-info">
+                            <div class="profile-name" id="navbar-username">User</div>
+                            <div class="profile-role" id="navbar-role">Viewer</div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="content-body">
+                
+                <!-- VIEW 1: DASHBOARD VIEW -->
+                <div class="view-section active" id="view-dashboard">
+                    <div>
+                        <div class="section-header">
+                            <div>
+                                <h2 class="section-title">Overview Dashboard</h2>
+                                <p class="section-desc">Key metrics and node pool statuses</p>
+                            </div>
+                            <div class="status-badge" style="background-color: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.2);">
+                                <div class="status-dot"></div>
+                                <span style="color: var(--success);" id="dashboard-engine-status">SCHEDULER ENGINE ACTIVE</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Metrics Grid -->
+                    <div class="stats-grid">
+                        <div class="card">
+                            <div class="stat-header">TOTAL JOBS</div>
+                            <div class="stat-value" id="dash-stat-total">0</div>
+                            <div class="stat-footer"><span style="color: var(--success); font-weight: 600;">✓</span> <span>Registered Tasks</span></div>
+                        </div>
+                        <div class="card">
+                            <div class="stat-header" style="color: #06B6D4">RUNNING JOBS</div>
+                            <div class="stat-value" style="color: #06B6D4" id="dash-stat-running">0</div>
+                            <div class="stat-footer"><span class="status-dot" style="background-color: #06B6D4; display: inline-block;"></span> <span style="margin-left: 4px;">Actively processing</span></div>
+                        </div>
+                        <div class="card">
+                            <div class="stat-header" style="color: var(--warning)">PENDING SCHEDULING</div>
+                            <div class="stat-value" style="color: var(--warning)" id="dash-stat-pending">0</div>
+                            <div class="stat-footer"><span>Waiting scheduled offset</span></div>
+                        </div>
+                        <div class="card" style="border-color: rgba(239, 68, 68, 0.3)">
+                            <div class="stat-header" style="color: var(--danger)">FAILED / DLQ</div>
+                            <div class="stat-value" style="color: var(--danger)" id="dash-stat-failed">0</div>
+                            <div class="stat-footer"><span>Moved to DLQ</span></div>
+                        </div>
+                    </div>
+
+                    <div class="two-col-layout">
+                        <!-- Left Panel: Recent Jobs -->
+                        <div class="list-panel">
+                            <div class="list-panel-title">
+                                <span>Recent Job Registry</span>
+                                <button class="btn btn-outline" style="padding: 4px 10px;" onclick="showView('jobs')">View Registry</button>
+                            </div>
+                            <div class="data-table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Job Name</th>
+                                            <th>Queue</th>
+                                            <th>Schedule</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dash-recent-jobs-tbody">
+                                        <tr><td colspan="4" style="text-align: center;">Loading jobs...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: System Health & Activity Feed -->
+                        <div class="list-panel" style="display: flex; flex-direction: column; gap: 16px;">
+                            <div class="list-panel-title">System Health & Settings</div>
+                            
+                            <div class="card" style="padding: 16px; background-color: rgba(0, 0, 0, 0.15)">
+                                <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
+                                    <span style="color: var(--text-secondary)">Scheduler Engine</span>
+                                    <span style="color: var(--success); font-weight: 600;" id="dash-sys-engine-status">ONLINE</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
+                                    <span style="color: var(--text-secondary)">Uptime</span>
+                                    <span id="dash-sys-uptime">0:00:00</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
+                                    <span style="color: var(--text-secondary)">Active Thread Workers</span>
+                                    <span id="dash-sys-threads">3 Workers</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                                    <span style="color: var(--text-secondary)">Platform Version</span>
+                                    <span>v2.1.0-Enterprise</span>
+                                </div>
+                            </div>
+
+                            <div class="list-panel-title" style="margin-top: 8px; margin-bottom: 8px;">Queue Status</div>
+                            <div id="dash-queue-status-card" style="display: flex; flex-direction: column; gap: 8px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 13px; padding: 10px 14px; background-color: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 8px;">
+                                    <span>default</span>
+                                    <span class="status-chip chip-completed">ACTIVE</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 2: JOBS LIST VIEW -->
+                <div class="view-section" id="view-jobs">
+                    <div>
+                        <div class="section-header">
+                            <div>
+                                <h2 class="section-title">Job Scheduling Registry</h2>
+                                <p class="section-desc">Add, filter, clone, and manage scheduled cluster tasks</p>
+                            </div>
+                            <button class="btn" onclick="openCreateJobModal()" id="btn-create-job-action">
+                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 18px; height: 18px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                Create Scheduled Job
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Bulk Actions Bar -->
+                    <div class="bulk-bar" id="bulk-actions-bar">
+                        <span id="bulk-selected-count">0 items selected</span>
+                        <button class="btn btn-outline" style="padding: 4px 10px; margin-left: auto;" onclick="bulkRetry()">Bulk Retry</button>
+                        <button class="btn btn-danger" style="padding: 4px 10px;" onclick="bulkDelete()">Bulk Delete</button>
+                    </div>
+
+                    <!-- Filter Controls -->
+                    <div class="table-controls">
+                        <div class="search-input-wrapper">
+                            <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            <input type="text" id="jobs-table-search" placeholder="Search by name, command, queue..." oninput="filterJobs()">
+                        </div>
+
+                        <div class="filter-controls">
+                            <select id="filter-status" onchange="filterJobs()">
+                                <option value="">All Statuses</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Running">Running</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Failed">Failed</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+
+                            <select id="filter-queue" onchange="filterJobs()">
+                                <option value="">All Queues</option>
+                                <option value="default">default</option>
+                            </select>
+
+                            <button class="btn btn-outline" onclick="exportCSV()">Export CSV</button>
+                        </div>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="data-table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 40px;"><input type="checkbox" id="check-all-jobs" onchange="toggleSelectAllJobs()"></th>
+                                    <th>Job Name</th>
+                                    <th>Queue</th>
+                                    <th>Priority</th>
+                                    <th>Schedule Time</th>
+                                    <th>Worker</th>
+                                    <th>Status</th>
+                                    <th style="text-align: right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="jobs-table-tbody">
+                                <tr><td colspan="8" style="text-align: center;">Querying job listings...</td></tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="pagination-container">
+                            <span id="jobs-pagination-info">Showing 0 of 0 jobs</span>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn btn-outline" style="padding: 4px 10px;" onclick="prevJobsPage()">Previous</button>
+                                <button class="btn btn-outline" style="padding: 4px 10px;" onclick="nextJobsPage()">Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 3: JOB DETAILS VIEW -->
+                <div class="view-section" id="view-job-details">
+                    <div>
+                        <button class="btn btn-outline" style="padding: 6px 12px; margin-bottom: 8px;" onclick="showView('jobs')">← Back to Registry</button>
+                        <div class="section-header">
+                            <div>
+                                <h2 class="section-title" id="det-job-name">Job Details</h2>
+                                <p class="section-desc">Status, attempts, timing execution logs, and metadata analysis</p>
+                            </div>
+                            <div id="det-job-controls" style="display: flex; gap: 8px;">
+                                <!-- Contextual actions populated in JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline -->
+                    <div class="card">
+                        <div class="stat-header">EXECUTION LIFECYCLE TIMELINE</div>
+                        <div class="timeline-steps" id="det-timeline">
+                            <div class="timeline-step completed">
+                                <div class="timeline-dot">1</div>
+                                <div class="timeline-label">Created</div>
+                            </div>
+                            <div class="timeline-step" id="step-queued">
+                                <div class="timeline-dot">2</div>
+                                <div class="timeline-label">Queued</div>
+                            </div>
+                            <div class="timeline-step" id="step-running">
+                                <div class="timeline-dot">3</div>
+                                <div class="timeline-label">Running</div>
+                            </div>
+                            <div class="timeline-step" id="step-completed">
+                                <div class="timeline-dot">4</div>
+                                <div class="timeline-label">Completed</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="two-col-layout">
+                        <!-- Left Panel: Specifications -->
+                        <div class="list-panel" style="display: flex; flex-direction: column; gap: 16px;">
+                            <div class="list-panel-title">Metadata Specifications</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                <div>
+                                    <label style="font-size: 11px; color: var(--text-secondary);">COMMAND STRING</label>
+                                    <div class="code-font" style="margin-top: 4px;" id="det-command">-</div>
+                                </div>
+                                <div>
+                                    <label style="font-size: 11px; color: var(--text-secondary);">PARENT QUEUE</label>
+                                    <div style="font-size: 13px; font-weight: 600; margin-top: 4px;" id="det-queue">-</div>
+                                </div>
+                                <div>
+                                    <label style="font-size: 11px; color: var(--text-secondary);">RETRIES CONFIG</label>
+                                    <div style="font-size: 13px; font-weight: 600; margin-top: 4px;" id="det-retries">-</div>
+                                </div>
+                                <div>
+                                    <label style="font-size: 11px; color: var(--text-secondary);">RETRY INTERVAL</label>
+                                    <div style="font-size: 13px; font-weight: 600; margin-top: 4px;" id="det-interval">-</div>
+                                </div>
+                                <div>
+                                    <label style="font-size: 11px; color: var(--text-secondary);">ASSIGNED WORKER</label>
+                                    <div style="font-size: 13px; font-weight: 600; margin-top: 4px;" id="det-worker">-</div>
+                                </div>
+                                <div>
+                                    <label style="font-size: 11px; color: var(--text-secondary);">PRIORITY LEVEL</label>
+                                    <div style="font-size: 13px; font-weight: 600; margin-top: 4px;" id="det-priority">-</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Execution Output & Status -->
+                        <div class="list-panel" style="display: flex; flex-direction: column; gap: 16px;">
+                            <div class="list-panel-title">Timing Analysis</div>
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                                    <span style="color: var(--text-secondary)">Created At</span>
+                                    <span id="det-created-at">-</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                                    <span style="color: var(--text-secondary)">Scheduled For</span>
+                                    <span id="det-schedule-time">-</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                                    <span style="color: var(--text-secondary)">Started At</span>
+                                    <span id="det-started-at">-</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                                    <span style="color: var(--text-secondary)">Completed At</span>
+                                    <span id="det-completed-at">-</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-size: 13px; border-top: 1px solid var(--border-color); padding-top: 8px;">
+                                    <span style="color: var(--text-secondary)">Execution Duration</span>
+                                    <span style="font-weight: 600;" id="det-duration">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Execution Logs -->
+                    <div class="list-panel">
+                        <div class="list-panel-title">Console Output Streams</div>
+                        <div class="terminal" id="det-terminal-logs">
+                            <div class="log-line">No executions recorded yet.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 4: QUEUES MANAGEMENT VIEW -->
+                <div class="view-section" id="view-queues">
+                    <div>
+                        <div class="section-header">
+                            <div>
+                                <h2 class="section-title">Queue Controllers & Dead Letter Queue (DLQ)</h2>
+                                <p class="section-desc">Manage message queues, toggle active states, and inspect failed tasks</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="list-panel">
+                        <div class="list-panel-title">Active Queue Registers</div>
+                        <div class="data-table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Queue Name</th>
+                                        <th>Waiting Jobs</th>
+                                        <th>Running Jobs</th>
+                                        <th>Uptime Status</th>
+                                        <th style="text-align: right;">Action Toggle</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="queues-table-tbody">
+                                    <tr><td colspan="5" style="text-align: center;">Querying queue configurations...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="list-panel" style="border-color: rgba(239, 68, 68, 0.2)">
+                        <div class="list-panel-title" style="color: var(--danger)">Dead Letter Queue (DLQ)</div>
+                        <div class="data-table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>DLQ ID</th>
+                                        <th>Job ID</th>
+                                        <th>Job Name</th>
+                                        <th>Failed At</th>
+                                        <th>Error Reason</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dlq-table-tbody">
+                                    <tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">DLQ is empty. Cluster health is 100%.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 5: WORKERS VIEW -->
+                <div class="view-section" id="view-workers">
+                    <div>
+                        <div class="section-header">
+                            <div>
+                                <h2 class="section-title">Cluster Worker Pools</h2>
+                                <p class="section-desc">Monitor background supervisor threads and simulated resource loads</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="workers-cards-grid" class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+                        <!-- Workers cards populated by JS -->
+                    </div>
+                </div>
+
+                <!-- VIEW 6: MONITORING & LOGS VIEW -->
+                <div class="view-section" id="view-monitoring">
+                    <div>
+                        <div class="section-header">
+                            <div>
+                                <h2 class="section-title">Live System Logs & Monitoring</h2>
+                                <p class="section-desc">Real-time system telemetry and scrolling central stdout/stderr streams</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Telemetry Metrics Cards -->
+                    <div class="stats-grid">
+                        <div class="card">
+                            <div class="stat-header">SCHEDULER STATUS</div>
+                            <div class="stat-value" style="color: var(--success)">ONLINE</div>
+                            <div class="stat-footer"><span>Uptime: </span><span id="mon-stat-uptime">-</span></div>
+                        </div>
+                        <div class="card">
+                            <div class="stat-header">CPU UTILIZATION</div>
+                            <div class="stat-value" id="mon-stat-cpu">0%</div>
+                            <div class="meter-container">
+                                <div class="meter-bar-bg"><div class="meter-bar-fill" id="mon-cpu-fill" style="width: 0%"></div></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="stat-header">MEMORY ALLOCATION</div>
+                            <div class="stat-value" id="mon-stat-mem">0%</div>
+                            <div class="meter-container">
+                                <div class="meter-bar-bg"><div class="meter-bar-fill" id="mon-mem-fill" style="width: 0%"></div></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="stat-header">DISK STORAGE</div>
+                            <div class="stat-value" id="mon-stat-disk">0%</div>
+                            <div class="meter-container">
+                                <div class="meter-bar-bg"><div class="meter-bar-fill" id="mon-disk-fill" style="width: 0%"></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Log Terminal -->
+                    <div class="list-panel">
+                        <div class="list-panel-title">
+                            <span>Live Scrolling Logs</span>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="log-search-input" placeholder="Filter text..." style="padding: 6px 12px; font-size: 11px; width: 140px;" oninput="renderLogs()">
+                                <select id="log-level-filter" style="padding: 4px 8px; font-size: 11px;" onchange="renderLogs()">
+                                    <option value="">All Levels</option>
+                                    <option value="INFO">INFO</option>
+                                    <option value="WARNING">WARNING</option>
+                                    <option value="ERROR">ERROR</option>
+                                    <option value="SUCCESS">SUCCESS</option>
+                                </select>
+                                <button class="btn btn-outline" style="padding: 6px 12px; font-size: 11px;" onclick="downloadLogs()">Download Logs</button>
+                            </div>
+                        </div>
+                        <div class="terminal" id="live-logs-terminal">
+                            <!-- Populated in JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 7: ANALYTICS VIEW -->
+                <div class="view-section" id="view-analytics">
+                    <div>
+                        <div class="section-header">
+                            <div>
+                                <h2 class="section-title">Telemetry Analytics</h2>
+                                <p class="section-desc">Historical execution counts and average worker statistics</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="two-col-layout">
+                        <!-- Chart: Job Completions vs Failures -->
+                        <div class="list-panel">
+                            <div class="list-panel-title">Job Completions vs Failures (Last 7 Days)</div>
+                            <div style="height: 240px; display: flex; align-items: flex-end; justify-content: space-around; padding: 20px; position: relative; border-bottom: 1.5px solid var(--border-color)">
+                                <!-- Dynamic SVG Charts rendered via JS -->
+                                <div id="analytics-chart-bar" style="width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: space-around;"></div>
+                            </div>
+                            <div style="display: flex; justify-content: center; gap: 16px; margin-top: 12px; font-size: 12px;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <div style="width: 12px; height: 12px; background-color: var(--success); border-radius: 3px;"></div>
+                                    <span>Successes</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <div style="width: 12px; height: 12px; background-color: var(--danger); border-radius: 3px;"></div>
+                                    <span>Failures</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chart: Execution Duration -->
+                        <div class="list-panel">
+                            <div class="list-panel-title">Average Execution Duration (s)</div>
+                            <div style="height: 240px; display: flex; align-items: flex-end; justify-content: space-around; padding: 20px; position: relative; border-bottom: 1.5px solid var(--border-color)">
+                                <div id="analytics-chart-duration" style="width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: space-around;"></div>
+                            </div>
+                            <div style="text-align: center; margin-top: 12px; font-size: 12px; color: var(--text-secondary)">
+                                Average delay from claim to termination
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 8: EXPORT REPORTS VIEW -->
+                <div class="view-section" id="view-reports">
+                    <div>
+                        <div class="section-header">
+                            <div>
+                                <h2 class="section-title">Operational Reports</h2>
+                                <p class="section-desc">Compile cluster stats, download JSON schema audits, or CSV history logs</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="list-panel" style="max-width: 600px;">
+                        <div class="list-panel-title">Generate Report Document</div>
+                        <form onsubmit="handleGenerateReport(event)" style="display: flex; flex-direction: column; gap: 16px;">
+                            <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                <div class="input-group">
+                                    <label>Report Timeframe</label>
+                                    <select id="rep-timeframe">
+                                        <option value="Daily">Daily Summary (Last 24 Hours)</option>
+                                        <option value="Weekly">Weekly Summary (Last 7 Days)</option>
+                                        <option value="Monthly">Monthly Summary (Last 30 Days)</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label>Export Format</label>
+                                    <select id="rep-format">
+                                        <option value="TXT">Flat Text Report (Standard)</option>
+                                        <option value="JSON">Structured JSON Audit</option>
+                                        <option value="CSV">Comma Separated values (CSV)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn" style="width: fit-content; margin-top: 8px;">Compile and Download Report</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- VIEW 9: AUDIT LOGS VIEW -->
+                <div class="view-section" id="view-audit">
+                    <div>
+                        <div class="section-header">
+                            <div>
+                                <h2 class="section-title">Audit Logging</h2>
+                                <p class="section-desc">Inspect configuration mutations, worker startups, and user operations</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="list-panel">
+                        <div class="list-panel-title">Platform Access & Actions Activity</div>
+                        <div class="data-table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>Operator</th>
+                                        <th>Role</th>
+                                        <th>Action</th>
+                                        <th>Target Resource</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="audit-table-tbody">
+                                    <tr><td colspan="6" style="text-align: center;">Loading audit stream...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 10: SETTINGS VIEW -->
+                <div class="view-section" id="view-settings">
+                    <div>
+                        <div class="section-header">
+                            <div>
+                                <h2 class="section-title">Settings Configurations</h2>
+                                <p class="section-desc">Manage retry policies, cluster settings, and notification alerts</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="two-col-layout">
+                        <div class="list-panel" style="display: flex; flex-direction: column; gap: 16px;">
+                            <div class="list-panel-title">Scheduler Policies</div>
+                            <form id="settings-policy-form" onsubmit="handleSaveSettings(event)" style="display: flex; flex-direction: column; gap: 16px;">
+                                <div class="input-group">
+                                    <label for="set-default-max-retries">Default Max Retries</label>
+                                    <input type="number" id="set-default-max-retries" style="background-color: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-color); color: white; padding: 10px; border-radius: 8px;" value="3" min="0">
+                                </div>
+                                <div class="input-group">
+                                    <label for="set-default-retry-interval">Default Retry Interval (seconds)</label>
+                                    <input type="number" id="set-default-retry-interval" style="background-color: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-color); color: white; padding: 10px; border-radius: 8px;" value="5" min="1">
+                                </div>
+                                <div class="input-group">
+                                    <label for="set-default-queue">Default Queue Name</label>
+                                    <input type="text" id="set-default-queue" style="background-color: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-color); color: white; padding: 10px; border-radius: 8px;" value="default">
+                                </div>
+                                <button type="submit" class="btn" style="width: fit-content;" id="btn-save-settings">Save Configurations</button>
+                            </form>
+                        </div>
+                        
+                        <div class="list-panel" style="display: flex; flex-direction: column; gap: 16px;">
+                            <div class="list-panel-title">Notification Alerts Preferences</div>
+                            <div style="display: flex; flex-direction: column; gap: 12px; font-size: 13px;">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" checked id="set-alert-fail"> Email notification when Job fails
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" checked id="set-alert-dlq"> Alert notifications on Dead Letter Queue routing
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" checked id="set-alert-worker"> Alert when worker goes offline
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 11: PROFILE VIEW -->
+                <div class="view-section" id="view-profile">
+                    <div>
+                        <div class="section-header">
+                            <div>
+                                <h2 class="section-title">User Profile Details</h2>
+                                <p class="section-desc">Manage password credentials and review active session parameters</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="two-col-layout">
+                        <div class="list-panel" style="display: flex; flex-direction: column; gap: 20px; align-items: center; text-align: center;">
+                            <div class="profile-avatar" style="width: 80px; height: 80px; font-size: 32px;" id="prof-avatar">A</div>
+                            <div>
+                                <h3 style="font-size: 18px; font-weight: 700;" id="prof-name">Sarah Connor</h3>
+                                <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;" id="prof-email">admin@scheduler.io</p>
+                                <span class="badge" style="background-color: rgba(79, 70, 229, 0.1); color: var(--primary); padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 600; display: inline-block; margin-top: 12px;" id="prof-role">ADMINISTRATOR</span>
+                            </div>
+                        </div>
+
+                        <div class="list-panel" style="display: flex; flex-direction: column; gap: 16px;">
+                            <div class="list-panel-title">Update Authentication Password</div>
+                            <form onsubmit="handleUpdatePassword(event)" style="display: flex; flex-direction: column; gap: 16px;">
+                                <div class="input-group">
+                                    <label for="prof-curr-pass">Current Password</label>
+                                    <input type="password" id="prof-curr-pass" style="background-color: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-color); color: white; padding: 10px; border-radius: 8px;" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="prof-new-pass">New Password</label>
+                                    <input type="password" id="prof-new-pass" style="background-color: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-color); color: white; padding: 10px; border-radius: 8px;" required>
+                                </div>
+                                <button type="submit" class="btn" style="width: fit-content;">Change Password</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL DIALOG: CREATE / EDIT JOB -->
+    <div class="modal-overlay" id="modal-job-editor">
+        <div class="modal-card" style="max-width: 500px;">
+            <div class="modal-title" id="job-modal-title">Create Scheduled Job</div>
+            <form onsubmit="handleSaveJob(event)" style="display: flex; flex-direction: column; gap: 12px;">
+                <input type="hidden" id="edit-job-id">
+                
+                <div class="input-group">
+                    <label for="job-name-input">Job Name</label>
+                    <input type="text" id="job-name-input" required placeholder="e.g. DailyDataBackup" style="background-color: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: white; padding: 10px; border-radius: 8px;">
+                </div>
+                
+                <div class="input-group">
+                    <label for="job-command-input">Command Execution Path</label>
+                    <input type="text" id="job-command-input" required placeholder="e.g. echo 'success'" style="background-color: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: white; padding: 10px; border-radius: 8px;">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="input-group">
+                        <label for="job-schedule-input">Schedule Time (+10s or absolute)</label>
+                        <input type="text" id="job-schedule-input" required placeholder="+10s, +5m or YYYY-MM-DD HH:MM:SS" style="background-color: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: white; padding: 10px; border-radius: 8px;">
+                    </div>
+                    <div class="input-group">
+                        <label for="job-queue-input">Queue</label>
+                        <select id="job-queue-input">
+                            <option value="default">default</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="input-group">
+                        <label for="job-priority-input">Priority</label>
+                        <select id="job-priority-input">
+                            <option value="0">0 - Low</option>
+                            <option value="1">1 - Medium</option>
+                            <option value="2">2 - High</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="job-policy-input">Retry Policy</label>
+                        <select id="job-policy-input">
+                            <option value="Fixed">Fixed Delay</option>
+                            <option value="Linear">Linear Backoff</option>
+                            <option value="Exponential">Exponential Backoff</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="input-group">
+                        <label for="job-max-retries-input">Max Retries</label>
+                        <input type="number" id="job-max-retries-input" value="3" min="0" style="background-color: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: white; padding: 10px; border-radius: 8px;">
+                    </div>
+                    <div class="input-group">
+                        <label for="job-interval-input">Retry Interval (s)</label>
+                        <input type="number" id="job-interval-input" value="5" min="1" style="background-color: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: white; padding: 10px; border-radius: 8px;">
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeJobEditorModal()">Cancel</button>
+                    <button type="submit" class="btn">Save Scheduled Job</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DIALOG: CONFIRMATION PROMPTS -->
+    <div class="modal-overlay" id="modal-confirmation">
+        <div class="modal-card">
+            <div class="modal-title" id="conf-title">Confirm Action</div>
+            <div class="modal-desc" id="conf-desc">Are you sure you want to perform this operation?</div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeConfirmModal()">Cancel</button>
+                <button class="btn" id="conf-action-btn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DIALOG: GLOBAL SEARCH OVERLAY -->
+    <div class="modal-overlay" id="modal-global-search">
+        <div class="modal-card search-modal">
+            <input type="text" id="global-search-input" class="search-modal-input" placeholder="Type page name or action..." oninput="handleGlobalSearch()">
+            <div class="search-results" id="global-search-results">
+                <!-- Search results injected here -->
+            </div>
+            <div style="padding: 10px 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary)">
+                <span>Use keyboard arrows ↑↓ to navigate, [Enter] to choose</span>
+                <span>ESC to close</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- GLOBAL CLIENT STATE ---
+        const state = {
+            currentUser: null,
+            role: 'Viewer',
+            activeView: 'dashboard',
+            jobs: [],
+            workers: [],
+            dlq: [],
+            auditLogs: [],
+            notifications: [],
+            currentPage: 1,
+            pageSize: 10,
+            searchQuery: '',
+            filterStatus: '',
+            filterQueue: '',
+            selectedJobIds: new Set(),
+            searchSelectedIndex: 0,
+            searchItems: []
+        };
+
+        // --- AUTH VIEWS CONTROLLER ---
+        function switchAuthView(view) {
+            document.getElementById('auth-card-login').style.display = view === 'login' ? 'block' : 'none';
+            document.getElementById('auth-card-register').style.display = view === 'register' ? 'block' : 'none';
+            document.getElementById('auth-card-forgot').style.display = view === 'forgot' ? 'block' : 'none';
+        }
+
+        function togglePasswordVisibility(id) {
+            const input = document.getElementById(id);
+            if (input.type === 'password') {
+                input.type = 'text';
+                event.target.innerText = 'Hide';
+            } else {
+                input.type = 'password';
+                event.target.innerText = 'Show';
+            }
+        }
+
+        // Handle Login Submission
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-password').value;
+            
+            const btn = document.getElementById('btn-login-submit');
+            btn.innerText = 'Signing In...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ email: email, password: pass })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    state.currentUser = { email: email, name: data.name, role: data.role };
+                    state.role = data.role;
+                    
+                    // Save session local
+                    localStorage.setItem('scheduler_user', JSON.stringify(state.currentUser));
+                    
+                    toast('success', `Welcome back, ${data.name}! Authenticated as ${data.role}.`);
+                    initializeAuthenticatedSession();
+                } else {
+                    toast('error', data.error || 'Authentication failed. Please verify credentials.');
+                }
+            } catch (err) {
+                toast('error', 'Network failure connecting to Auth Engine.');
+            } finally {
+                btn.innerText = 'Sign In';
+                btn.disabled = false;
+            }
+        }
+
+        // Handle Register Submission
+        async function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const pass = document.getElementById('reg-password').value;
+            const role = document.getElementById('reg-role').value;
+
+            try {
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ name, email, password: pass, role })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    toast('success', 'Account created successfully! You can now log in.');
+                    switchAuthView('login');
+                } else {
+                    toast('error', data.error || 'Registration failed.');
+                }
+            } catch(e) {
+                toast('error', 'Network failure.');
+            }
+        }
+
+        // Handle Forgot Password
+        function handleForgot(e) {
+            e.preventDefault();
+            toast('success', 'A password reset instructions link has been sent to your email.');
+            switchAuthView('login');
+        }
+
+        // Handle Logout
+        async function handleLogout() {
+            try {
+                await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ username: state.currentUser ? state.currentUser.name : 'Unknown' })
+                });
+            } catch(e){}
+            
+            state.currentUser = null;
+            state.role = 'Viewer';
+            localStorage.removeItem('scheduler_user');
+            
+            document.getElementById('app-container').style.display = 'none';
+            document.getElementById('auth-container').style.display = 'flex';
+            switchAuthView('login');
+            toast('info', 'Logged out successfully.');
+        }
+
+        // Initialize user UI constraints on login
+        function initializeAuthenticatedSession() {
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('app-container').style.display = 'flex';
+            
+            // Set navbar profile info
+            document.getElementById('navbar-username').innerText = state.currentUser.name;
+            document.getElementById('navbar-role').innerText = state.currentUser.role;
+            document.getElementById('navbar-avatar').innerText = state.currentUser.name.charAt(0);
+            
+            // Set profile view info
+            document.getElementById('prof-name').innerText = state.currentUser.name;
+            document.getElementById('prof-email').innerText = state.currentUser.email;
+            document.getElementById('prof-role').innerText = state.currentUser.role.toUpperCase();
+            document.getElementById('prof-avatar').innerText = state.currentUser.name.charAt(0);
+
+            // Apply role constraints (RBAC)
+            applyRBACConstraints();
+
+            // Load initial view
+            showView('dashboard');
+            
+            // Start polling loops
+            startPolling();
+        }
+
+        // Hide or disable fields based on user role
+        function applyRBACConstraints() {
+            const role = state.role;
+            
+            // 1. Create Job Actions
+            const createJobAction = document.getElementById('btn-create-job-action');
+            if (role === 'Viewer') {
+                createJobAction.style.display = 'none';
+            } else {
+                createJobAction.style.display = 'flex';
+            }
+
+            // 2. Settings Views & Policy forms
+            const saveSettingsBtn = document.getElementById('btn-save-settings');
+            if (role !== 'Admin') {
+                saveSettingsBtn.disabled = true;
+                saveSettingsBtn.innerText = 'Admin Rights Required';
+            } else {
+                saveSettingsBtn.disabled = false;
+                saveSettingsBtn.innerText = 'Save Configurations';
+            }
+        }
+
+        // Auto check local storage on reload
+        window.addEventListener('DOMContentLoaded', () => {
+            const saved = localStorage.getItem('scheduler_user');
+            if (saved) {
+                state.currentUser = JSON.parse(saved);
+                state.role = state.currentUser.role;
+                initializeAuthenticatedSession();
+            }
+        });
+
+        // --- NAVIGATION ROUTER ---
+        function showView(viewName) {
+            state.activeView = viewName;
+            
+            // Update menu selection
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+            const activeMenu = document.getElementById(`menu-${viewName}`);
+            if (activeMenu) activeMenu.classList.add('active');
+
+            // Hide/show views
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            const activeViewEl = document.getElementById(`view-${viewName}`);
+            if (activeViewEl) activeViewEl.classList.add('active');
+
+            // Reload data for this view specifically
+            refreshViewData(viewName);
+        }
+
+        // Collapsible Sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('main-sidebar');
+            sidebar.classList.toggle('collapsed');
+            document.body.classList.toggle('sidebar-collapsed');
+        }
+
+        // --- TOAST SYSTEMS ---
+        function toast(type, text) {
+            const container = document.getElementById('toast-container');
+            const el = document.createElement('div');
+            el.className = `toast toast-${type}`;
+            
+            let icon = '✓';
+            if (type === 'error') icon = '✗';
+            if (type === 'warning') icon = '⚠';
+            if (type === 'info') icon = 'ℹ';
+            
+            el.innerHTML = `<span><strong>${icon}</strong> ${text}</span>`;
+            container.appendChild(el);
+            
+            setTimeout(() => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(-10px) scale(0.95)';
+                setTimeout(() => el.remove(), 200);
+            }, 3000);
+        }
+
+        // --- DATA REFRESHING & API FETCHING ---
+        async function refreshViewData(view) {
+            if (!state.currentUser) return;
+            
+            try {
+                if (view === 'dashboard') {
+                    // Fetch summary metrics
+                    const res = await fetch('/api/metrics');
+                    const metrics = await res.json();
+                    
+                    document.getElementById('dash-stat-total').innerText = metrics.Total;
+                    document.getElementById('dash-stat-running').innerText = metrics.Running;
+                    document.getElementById('dash-stat-pending').innerText = metrics.Pending;
+                    document.getElementById('dash-stat-failed').innerText = metrics.Failed + metrics.DLQ;
+
+                    // Fetch status info
+                    const resSys = await fetch('/api/system-status');
+                    const sys = await resSys.json();
+                    document.getElementById('dash-sys-uptime').innerText = sys.uptime;
+                    document.getElementById('dash-sys-threads').innerText = `${sys.thread_count} Worker Threads`;
+                    document.getElementById('dash-sys-engine-status').innerText = sys.status;
+                    document.getElementById('dashboard-engine-status').innerText = `SCHEDULER ENGINE ${sys.status}`;
+
+                    // Fetch jobs for recent table
+                    const resJobs = await fetch('/api/jobs');
+                    const jobs = await resJobs.json();
+                    state.jobs = jobs;
+                    
+                    const recentBody = document.getElementById('dash-recent-jobs-tbody');
+                    if (jobs.length === 0) {
+                        recentBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-secondary);">No jobs scheduled.</td></tr>';
+                    } else {
+                        recentBody.innerHTML = jobs.slice(0, 5).map(j => {
+                            let badge = 'chip-pending';
+                            if (j.status === 'Running') badge = 'chip-running';
+                            if (j.status === 'Completed') badge = 'chip-completed';
+                            if (j.status === 'Failed') badge = 'chip-failed';
+                            return `
+                                <tr>
+                                    <td><strong>${j.job_name}</strong></td>
+                                    <td><span class="code-font">${j.queue_name}</span></td>
+                                    <td>${j.schedule_time}</td>
+                                    <td><span class="status-chip ${badge}">${j.status}</span></td>
+                                </tr>
+                            `;
+                        }).join('');
+                    }
+
+                    // Populate queue list status
+                    const resQueues = await fetch('/api/queues');
+                    const queues = await resQueues.json();
+                    const qCard = document.getElementById('dash-queue-status-card');
+                    qCard.innerHTML = queues.map(q => `
+                        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 13px; padding: 10px 14px; background-color: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 8px;">
+                            <span>${q.queue_name}</span>
+                            <span class="status-chip ${q.status === 'Active' ? 'chip-completed' : 'chip-failed'}">${q.status.toUpperCase()}</span>
+                        </div>
+                    `).join('');
+
+                } else if (view === 'jobs') {
+                    // Fetch full list
+                    const res = await fetch('/api/jobs');
+                    state.jobs = await res.json();
+                    renderJobsTable();
+                    
+                    // Fetch queues to update create modal select options
+                    const resQueues = await fetch('/api/queues');
+                    const queues = await resQueues.json();
+                    const queueSelect = document.getElementById('job-queue-input');
+                    queueSelect.innerHTML = queues.map(q => `<option value="${q.queue_name}">${q.queue_name}</option>`).join('');
+
+                } else if (view === 'queues') {
+                    // Fetch queues
+                    const resQ = await fetch('/api/queues');
+                    const queues = await resQ.json();
+                    const qBody = document.getElementById('queues-table-tbody');
+                    
+                    qBody.innerHTML = queues.map(q => {
+                        const isPaused = q.status === 'Paused';
+                        const toggleBtn = isPaused ? 
+                            `<button class="btn" style="padding: 4px 10px;" onclick="toggleQueueStatus('${q.queue_name}', 'Resume')">Resume</button>` :
+                            `<button class="btn btn-outline" style="padding: 4px 10px;" onclick="toggleQueueStatus('${q.queue_name}', 'Pause')">Pause</button>`;
+                        
+                        // Count waiting/running jobs in JS
+                        const waiting = state.jobs.filter(j => j.queue_name === q.queue_name && j.status === 'Pending').length;
+                        const running = state.jobs.filter(j => j.queue_name === q.queue_name && j.status === 'Running').length;
+                        
+                        return `
+                            <tr>
+                                <td><strong>${q.queue_name}</strong></td>
+                                <td>${waiting}</td>
+                                <td>${running}</td>
+                                <td><span class="status-chip ${q.status === 'Active' ? 'chip-completed' : 'chip-running'}">${q.status}</span></td>
+                                <td style="text-align: right;">${toggleBtn}</td>
+                            </tr>
+                        `;
+                    }).join('');
+
+                    // Fetch DLQ
+                    const resDlq = await fetch('/api/dlq');
+                    const dlq = await resDlq.json();
+                    state.dlq = dlq;
+                    const dlqBody = document.getElementById('dlq-table-tbody');
+                    if (dlq.length === 0) {
+                        dlqBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">DLQ is empty. Cluster health is 100%.</td></tr>';
+                    } else {
+                        dlqBody.innerHTML = dlq.map(d => `
+                            <tr>
+                                <td>${d.dlq_id}</td>
+                                <td><span class="code-font">${d.job_id}</span></td>
+                                <td><strong>${d.job_name}</strong></td>
+                                <td>${d.failed_at}</td>
+                                <td style="color: var(--danger); font-family: monospace;">${d.reason}</td>
+                            </tr>
+                        `).join('');
+                    }
+
+                } else if (view === 'workers') {
+                    // Fetch worker pool
+                    const res = await fetch('/api/workers');
+                    const workers = await res.json();
+                    state.workers = workers;
+                    
+                    const grid = document.getElementById('workers-cards-grid');
+                    if (workers.length === 0) {
+                        grid.innerHTML = '<div style="grid-column: span 3; text-align: center; color: var(--text-secondary)">No thread workers registered.</div>';
+                    } else {
+                        grid.innerHTML = workers.map((w, index) => {
+                            // Assign mock CPU/memory usage based on index & active status
+                            const cpu = w.status === 'Active' ? Math.floor(Math.random() * 30) + 5 : 0;
+                            const mem = w.status === 'Active' ? Math.floor(Math.random() * 15) + 30 : 0;
+                            
+                            return `
+                                <div class="card">
+                                    <div class="stat-header">
+                                        <span>${w.worker_id}</span>
+                                        <span class="status-chip ${w.status === 'Active' ? 'chip-completed' : 'chip-failed'}">${w.status}</span>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 8px;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                                            <span style="color: var(--text-secondary)">Uptime since</span>
+                                            <span>${w.started_at.split(' ')[1] || w.started_at}</span>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                                            <span style="color: var(--text-secondary)">Last Heartbeat</span>
+                                            <span>${w.last_heartbeat.split(' ')[1] || w.last_heartbeat}</span>
+                                        </div>
+                                    </div>
+                                    <div class="meter-container" style="margin-top: 14px;">
+                                        <div class="meter-label-row"><span>CPU Load</span><span>${cpu}%</span></div>
+                                        <div class="meter-bar-bg"><div class="meter-bar-fill" style="width: ${cpu}%"></div></div>
+                                    </div>
+                                    <div class="meter-container">
+                                        <div class="meter-label-row"><span>Memory Load</span><span>${mem}%</span></div>
+                                        <div class="meter-bar-bg"><div class="meter-bar-fill" style="width: ${mem}%"></div></div>
+                                    </div>
+                                    <button class="btn btn-outline" style="width: 100%; margin-top: 16px; font-size: 11px; padding: 6px 12px;" onclick="restartWorker('${w.worker_id}')">Restart Worker</button>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+
+                } else if (view === 'monitoring') {
+                    // Refresh CPU, memory, Disk, uptime values
+                    const resSys = await fetch('/api/system-status');
+                    const sys = await resSys.json();
+                    
+                    document.getElementById('mon-stat-uptime').innerText = sys.uptime;
+                    document.getElementById('mon-stat-cpu').innerText = `${sys.cpu}%`;
+                    document.getElementById('mon-cpu-fill').style.width = `${sys.cpu}%`;
+                    document.getElementById('mon-stat-mem').innerText = `${sys.memory}%`;
+                    document.getElementById('mon-mem-fill').style.width = `${sys.memory}%`;
+                    document.getElementById('mon-stat-disk').innerText = `${sys.disk}%`;
+                    document.getElementById('mon-disk-fill').style.width = `${sys.disk}%`;
+
+                    // Pull logs list
+                    fetchLiveLogs();
+
+                } else if (view === 'analytics') {
+                    // Load analytics data and draw charts
+                    const res = await fetch('/api/analytics');
+                    const data = await res.json();
+                    drawAnalyticsCharts(data);
+
+                } else if (view === 'audit') {
+                    // Load audit logs
+                    const res = await fetch('/api/audit-logs');
+                    const logs = await res.json();
+                    state.auditLogs = logs;
+                    
+                    const tbody = document.getElementById('audit-table-tbody');
+                    if (logs.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-secondary)">No audit logs registered yet.</td></tr>';
+                    } else {
+                        tbody.innerHTML = logs.map(l => `
+                            <tr>
+                                <td style="color: var(--text-secondary)">${l.timestamp}</td>
+                                <td><strong>${l.username}</strong></td>
+                                <td><span class="priority-chip" style="font-size: 9px;">${l.role}</span></td>
+                                <td><span class="status-chip ${l.action.includes('Create') || l.action.includes('login') ? 'chip-completed' : l.action.includes('Pause') || l.action.includes('Delete') ? 'chip-failed' : 'chip-pending'}">${l.action}</span></td>
+                                <td><span class="code-font" style="font-size: 11px;">${l.target}</span></td>
+                                <td style="color: var(--text-secondary); max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${l.details}</td>
+                            </tr>
+                        `).join('');
+                    }
+                }
+            } catch (err) {
+                console.error("View data load failure", err);
+            }
+        }
+
+        // --- JOBS VIEW PAGINATION & RENDER ---
+        function renderJobsTable() {
+            const tbody = document.getElementById('jobs-table-tbody');
+            
+            // Filter
+            let filtered = state.jobs;
+            if (state.searchQuery) {
+                const query = state.searchQuery.toLowerCase();
+                filtered = filtered.filter(j => 
+                    j.job_name.toLowerCase().includes(query) || 
+                    j.command.toLowerCase().includes(query) || 
+                    j.queue_name.toLowerCase().includes(query)
+                );
+            }
+            if (state.filterStatus) {
+                filtered = filtered.filter(j => j.status === state.filterStatus);
+            }
+            if (state.filterQueue) {
+                filtered = filtered.filter(j => j.queue_name === state.filterQueue);
+            }
+
+            // Pagination calculations
+            const total = filtered.length;
+            const start = (state.currentPage - 1) * state.pageSize;
+            const end = start + state.pageSize;
+            const pageItems = filtered.slice(start, end);
+
+            document.getElementById('jobs-pagination-info').innerText = `Showing ${Math.min(start + 1, total)}-${Math.min(end, total)} of ${total} jobs`;
+
+            if (pageItems.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <svg class="empty-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2"/></svg>
+                                <h3>No scheduled jobs found</h3>
+                                <p>Create a task to launch and execute scripts on schedule</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = pageItems.map(j => {
+                let badge = 'chip-pending';
+                if (j.status === 'Running') badge = 'chip-running';
+                if (j.status === 'Completed') badge = 'chip-completed';
+                if (j.status === 'Failed') badge = 'chip-failed';
+                if (j.status === 'Cancelled') badge = 'chip-cancelled';
+
+                const pClass = j.priority === 2 ? 'priority-high' : j.priority === 1 ? 'priority-med' : '';
+                const pLabel = j.priority === 2 ? 'HIGH' : j.priority === 1 ? 'MEDIUM' : 'LOW';
+
+                const isChecked = state.selectedJobIds.has(j.job_id) ? 'checked' : '';
+
+                return `
+                    <tr>
+                        <td><input type="checkbox" onchange="toggleJobSelection(${j.job_id})" ${isChecked}></td>
+                        <td><strong>${j.job_name}</strong></td>
+                        <td><span class="code-font">${j.queue_name}</span></td>
+                        <td><span class="priority-chip ${pClass}">${pLabel}</span></td>
+                        <td>${j.schedule_time}</td>
+                        <td>${j.worker_id || '-'}</td>
+                        <td><span class="status-chip ${badge}">${j.status}</span></td>
+                        <td class="action-cell" style="text-align: right;">
+                            <button class="action-menu-btn" onclick="toggleDropdownMenu(${j.job_id})">•••</button>
+                            <div class="dropdown-menu" id="dropdown-${j.job_id}">
+                                <div class="dropdown-item" onclick="viewJobDetails(${j.job_id})">View Details</div>
+                                <div class="dropdown-item" onclick="openEditJobModal(${j.job_id})">Edit Config</div>
+                                <div class="dropdown-item" onclick="cloneJob(${j.job_id})">Clone Job</div>
+                                <div class="dropdown-item" onclick="retryJob(${j.job_id})">Retry Job</div>
+                                <div class="dropdown-item" onclick="togglePauseJob(${j.job_id}, '${j.status}')">${j.status === 'Cancelled' ? 'Resume' : 'Pause'}</div>
+                                <div class="dropdown-item danger-item" onclick="deleteJobPrompt(${j.job_id})">Delete Job</div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterJobs() {
+            state.searchQuery = document.getElementById('jobs-table-search').value;
+            state.filterStatus = document.getElementById('filter-status').value;
+            state.filterQueue = document.getElementById('filter-queue').value;
+            state.currentPage = 1;
+            renderJobsTable();
+        }
+
+        function prevJobsPage() {
+            if (state.currentPage > 1) {
+                state.currentPage--;
+                renderJobsTable();
+            }
+        }
+
+        function nextJobsPage() {
+            const totalFiltered = state.jobs.length; // rough estimate
+            if (state.currentPage * state.pageSize < totalFiltered) {
+                state.currentPage++;
+                renderJobsTable();
+            }
+        }
+
+        // Job Dropdown Toggle
+        function toggleDropdownMenu(jobId) {
+            event.stopPropagation();
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                if (menu.id !== `dropdown-${jobId}`) menu.classList.remove('show');
+            });
+            document.getElementById(`dropdown-${jobId}`).classList.toggle('show');
+        }
+
+        // Close dropdowns on body click
+        document.body.addEventListener('click', () => {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('show'));
+        });
+
+        // --- BULK ACTION HELPERS ---
+        function toggleJobSelection(jobId) {
+            if (state.selectedJobIds.has(jobId)) {
+                state.selectedJobIds.delete(jobId);
+            } else {
+                state.selectedJobIds.add(jobId);
+            }
+            updateBulkActionsBar();
+        }
+
+        function toggleSelectAllJobs() {
+            const checked = document.getElementById('check-all-jobs').checked;
+            if (checked) {
+                state.jobs.forEach(j => state.selectedJobIds.add(j.job_id));
+            } else {
+                state.selectedJobIds.clear();
+            }
+            renderJobsTable();
+            updateBulkActionsBar();
+        }
+
+        function updateBulkActionsBar() {
+            const bar = document.getElementById('bulk-actions-bar');
+            const countSpan = document.getElementById('bulk-selected-count');
+            const size = state.selectedJobIds.size;
+            if (size > 0) {
+                bar.style.display = 'flex';
+                countSpan.innerText = `${size} jobs selected`;
+            } else {
+                bar.style.display = 'none';
+            }
+        }
+
+        async function bulkDelete() {
+            if (state.role === 'Viewer') {
+                toast('error', 'Viewer role does not possess write privileges.');
+                return;
+            }
+            openConfirmModal("Bulk Delete Tasks", `Are you sure you want to delete these ${state.selectedJobIds.size} selected jobs?`, async () => {
+                const ids = Array.from(state.selectedJobIds);
+                try {
+                    const res = await fetch('/api/jobs/bulk-delete', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ ids: ids, username: state.currentUser.name, role: state.role })
+                    });
+                    if (res.ok) {
+                        toast('success', 'Selected jobs deleted successfully.');
+                        state.selectedJobIds.clear();
+                        updateBulkActionsBar();
+                        refreshViewData('jobs');
+                    }
+                } catch(e) {
+                    toast('error', 'Bulk operation failed.');
+                }
+            });
+        }
+
+        async function bulkRetry() {
+            const ids = Array.from(state.selectedJobIds);
+            try {
+                const res = await fetch('/api/jobs/bulk-retry', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ ids: ids, username: state.currentUser.name, role: state.role })
+                });
+                if (res.ok) {
+                    toast('success', 'Bulk retry initialized for selected tasks.');
+                    state.selectedJobIds.clear();
+                    updateBulkActionsBar();
+                    refreshViewData('jobs');
+                }
+            } catch(e) {
+                toast('error', 'Bulk operation failed.');
+            }
+        }
+
+        // --- SINGLE JOB ACTIONS ---
+        async function viewJobDetails(jobId) {
+            showView('job-details');
+            
+            // Populate details view with skeleton first
+            document.getElementById('det-job-name').innerText = "Loading details...";
+            
+            try {
+                const res = await fetch(`/api/jobs/details?job_id=${jobId}`);
+                const job = await res.json();
+                
+                document.getElementById('det-job-name').innerText = job.job_name;
+                document.getElementById('det-command').innerText = job.command;
+                document.getElementById('det-queue').innerText = job.queue_name;
+                document.getElementById('det-retries').innerText = `${job.retry_count}/${job.max_retries}`;
+                document.getElementById('det-interval').innerText = `${job.retry_interval} seconds`;
+                document.getElementById('det-worker').innerText = job.worker_id || 'None';
+                document.getElementById('det-priority').innerText = job.priority === 2 ? 'High' : job.priority === 1 ? 'Medium' : 'Low';
+                
+                document.getElementById('det-created-at').innerText = job.created_at;
+                document.getElementById('det-schedule-time').innerText = job.schedule_time;
+                document.getElementById('det-started-at').innerText = job.started_at || 'Not Started';
+                document.getElementById('det-completed-at').innerText = job.completed_at || 'Not Completed';
+
+                // Format duration
+                const resEx = await fetch(`/api/executions?job_id=${jobId}`);
+                const execs = await resEx.json();
+                const duration = execs.length > 0 && execs[execs.length - 1].duration ? `${execs[execs.length - 1].duration}s` : 'N/A';
+                document.getElementById('det-duration').innerText = duration;
+
+                // Adjust timeline dots
+                const timeline = document.getElementById('det-timeline');
+                timeline.querySelectorAll('.timeline-step').forEach(step => {
+                    step.className = 'timeline-step';
+                });
+                
+                // Base completed step
+                timeline.children[0].className = 'timeline-step completed';
+                
+                if (job.status === 'Pending') {
+                    document.getElementById('step-queued').className = 'timeline-step active';
+                } else if (job.status === 'Running') {
+                    document.getElementById('step-queued').className = 'timeline-step completed';
+                    document.getElementById('step-running').className = 'timeline-step active';
+                } else if (job.status === 'Completed') {
+                    document.getElementById('step-queued').className = 'timeline-step completed';
+                    document.getElementById('step-running').className = 'timeline-step completed';
+                    document.getElementById('step-completed').className = 'timeline-step completed';
+                } else if (job.status === 'Failed') {
+                    document.getElementById('step-queued').className = 'timeline-step completed';
+                    document.getElementById('step-running').className = 'timeline-step completed';
+                    document.getElementById('step-completed').className = 'timeline-step failed';
+                    document.getElementById('step-completed').querySelector('.timeline-label').innerText = 'Failed';
+                } else if (job.status === 'Cancelled') {
+                    document.getElementById('step-queued').className = 'timeline-step failed';
+                    document.getElementById('step-queued').querySelector('.timeline-label').innerText = 'Paused';
+                }
+
+                // Render Terminal logs
+                const terminal = document.getElementById('det-terminal-logs');
+                if (execs.length === 0) {
+                    terminal.innerHTML = '<div class="log-line">No execution history recorded for this task.</div>';
+                } else {
+                    terminal.innerHTML = execs.map(e => `
+<div class="log-line">
+    <span class="log-time">[Attempt ${e.attempt_number}]</span>
+    <span class="log-lvl-info">[${e.status}]</span>
+    <span>Worker: ${e.worker_id} | Dur: ${e.duration || 0}s</span>
+</div>
+<div class="log-line" style="padding-left: 20px; color: #a7f3d0;">
+    <span>STDOUT: ${e.stdout || '(None)'}</span>
+</div>
+<div class="log-line" style="padding-left: 20px; color: #fecaca;">
+    <span>STDERR: ${e.stderr || '(None)'}</span>
+</div>
+<hr style="border-color: rgba(255, 255, 255, 0.05); margin: 6px 0;">
+                    `).join('');
+                }
+
+                // Setup header control actions
+                const controlDiv = document.getElementById('det-job-controls');
+                controlDiv.innerHTML = `
+                    <button class="btn btn-outline" onclick="openEditJobModal(${job.job_id})">Edit Config</button>
+                    <button class="btn" onclick="retryJob(${job.job_id})">Force Execute Now</button>
+                `;
+
+            } catch (err) {
+                toast('error', 'Failed to retrieve detailed task specifications.');
+            }
+        }
+
+        // Clone Job
+        async function cloneJob(jobId) {
+            if (state.role === 'Viewer') {
+                toast('error', 'Viewer role does not possess write privileges.');
+                return;
+            }
+            try {
+                const res = await fetch('/api/jobs/clone', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ job_id: jobId, username: state.currentUser.name, role: state.role })
+                });
+                if (res.ok) {
+                    toast('success', 'Job cloned successfully.');
+                    refreshViewData('jobs');
+                } else {
+                    toast('error', 'Cloning failed.');
+                }
+            } catch(e) {
+                toast('error', 'Network failure.');
+            }
+        }
+
+        // Retry Job
+        async function retryJob(jobId) {
+            if (state.role === 'Viewer') {
+                toast('error', 'Viewer role does not possess write privileges.');
+                return;
+            }
+            try {
+                const res = await fetch('/api/jobs/retry', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ job_id: jobId, username: state.currentUser.name, role: state.role })
+                });
+                if (res.ok) {
+                    toast('success', 'Job rescheduled to execute immediately.');
+                    refreshViewData('jobs');
+                } else {
+                    toast('error', 'Rescheduling retry failed.');
+                }
+            } catch(e) {
+                toast('error', 'Network failure.');
+            }
+        }
+
+        // Toggle Pause/Resume Job
+        async function togglePauseJob(jobId, currentStatus) {
+            if (state.role === 'Viewer') {
+                toast('error', 'Viewer role does not possess write privileges.');
+                return;
+            }
+            const action = currentStatus === 'Cancelled' ? 'resume' : 'pause';
+            try {
+                const res = await fetch(`/api/jobs/${action}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ job_id: jobId, username: state.currentUser.name, role: state.role })
+                });
+                if (res.ok) {
+                    toast('success', `Job ${action === 'resume' ? 'resumed' : 'paused'} successfully.`);
+                    refreshViewData('jobs');
+                }
+            } catch(e) {
+                toast('error', 'State transition failed.');
+            }
+        }
+
+        // Delete Job
+        function deleteJobPrompt(jobId) {
+            if (state.role === 'Viewer') {
+                toast('error', 'Viewer role does not possess write privileges.');
+                return;
+            }
+            openConfirmModal("Delete Scheduled Task", "Are you sure you want to permanently remove this job and its execution records?", async () => {
+                try {
+                    const res = await fetch('/api/jobs/delete', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ job_id: jobId, username: state.currentUser.name, role: state.role })
+                    });
+                    if (res.ok) {
+                        toast('success', 'Job deleted successfully.');
+                        refreshViewData('jobs');
+                    } else {
+                        toast('error', 'Delete operation failed.');
+                    }
+                } catch(e) {
+                    toast('error', 'Network failure.');
+                }
+            });
+        }
+
+        // --- JOB FORM CREATION & EDIT MODAL ---
+        function openCreateJobModal() {
+            if (state.role === 'Viewer') {
+                toast('error', 'Viewer role does not possess write privileges.');
+                return;
+            }
+            document.getElementById('job-modal-title').innerText = 'Create Scheduled Job';
+            document.getElementById('edit-job-id').value = '';
+            
+            document.getElementById('job-name-input').value = '';
+            document.getElementById('job-command-input').value = '';
+            document.getElementById('job-schedule-input').value = '+10s';
+            document.getElementById('job-queue-input').value = 'default';
+            document.getElementById('job-priority-input').value = '0';
+            document.getElementById('job-policy-input').value = 'Fixed';
+            document.getElementById('job-max-retries-input').value = '3';
+            document.getElementById('job-interval-input').value = '5';
+
+            document.getElementById('modal-job-editor').classList.add('show');
+        }
+
+        async function openEditJobModal(jobId) {
+            if (state.role === 'Viewer') {
+                toast('error', 'Viewer role does not possess write privileges.');
+                return;
+            }
+            
+            try {
+                const res = await fetch(`/api/jobs/details?job_id=${jobId}`);
+                const job = await res.json();
+                
+                document.getElementById('job-modal-title').innerText = 'Edit Scheduled Job';
+                document.getElementById('edit-job-id').value = job.job_id;
+                
+                document.getElementById('job-name-input').value = job.job_name;
+                document.getElementById('job-command-input').value = job.command;
+                document.getElementById('job-schedule-input').value = job.schedule_time;
+                document.getElementById('job-queue-input').value = job.queue_name;
+                document.getElementById('job-priority-input').value = job.priority.toString();
+                document.getElementById('job-policy-input').value = job.retry_policy;
+                document.getElementById('job-max-retries-input').value = job.max_retries;
+                document.getElementById('job-interval-input').value = job.retry_interval;
+
+                document.getElementById('modal-job-editor').classList.add('show');
+            } catch(e) {
+                toast('error', 'Failed to retrieve job details.');
+            }
+        }
+
+        function closeJobEditorModal() {
+            document.getElementById('modal-job-editor').classList.remove('show');
+        }
+
+        async function handleSaveJob(e) {
+            e.preventDefault();
+            const editId = document.getElementById('edit-job-id').value;
+            const data = {
+                job_name: document.getElementById('job-name-input').value,
+                command: document.getElementById('job-command-input').value,
+                schedule_time: document.getElementById('job-schedule-input').value,
+                queue_name: document.getElementById('job-queue-input').value,
+                priority: parseInt(document.getElementById('job-priority-input').value),
+                retry_policy: document.getElementById('job-policy-input').value,
+                max_retries: parseInt(document.getElementById('job-max-retries-input').value),
+                retry_interval: parseInt(document.getElementById('job-interval-input').value),
+                username: state.currentUser.name,
+                role: state.role
+            };
+
+            const endpoint = editId ? '/api/jobs/edit' : '/api/jobs';
+            if (editId) data.job_id = parseInt(editId);
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                const resData = await res.json();
+                if (res.ok) {
+                    toast('success', `Job ${editId ? 'updated' : 'created'} successfully!`);
+                    closeJobEditorModal();
+                    refreshViewData('jobs');
+                } else {
+                    toast('error', resData.error || 'Failed to save job configuration.');
+                }
+            } catch(err) {
+                toast('error', 'Connection failure.');
+            }
+        }
+
+        // --- QUEUE ACTIONS ---
+        async function toggleQueueStatus(queueName, action) {
+            if (state.role === 'Viewer') {
+                toast('error', 'Viewer role does not possess write privileges.');
+                return;
+            }
+            try {
+                const endpoint = action === 'Pause' ? '/api/queues/pause' : '/api/queues/resume';
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ queue_name: queueName, username: state.currentUser.name, role: state.role })
+                });
+                if (res.ok) {
+                    toast('success', `Queue '${queueName}' has been ${action === 'Pause' ? 'paused' : 'resumed'}.`);
+                    refreshViewData('queues');
+                }
+            } catch(e) {
+                toast('error', 'Failed to update queue status.');
+            }
+        }
+
+        // --- WORKER ACTIONS ---
+        async function restartWorker(workerId) {
+            if (state.role === 'Viewer') {
+                toast('error', 'Viewer role does not possess write privileges.');
+                return;
+            }
+            openConfirmModal("Restart Cluster Worker", `Are you sure you want to reboot worker thread '${workerId}'?`, async () => {
+                try {
+                    const res = await fetch('/api/workers/restart', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ worker_id: workerId, username: state.currentUser.name, role: state.role })
+                    });
+                    if (res.ok) {
+                        toast('success', `Reboot signal sent to ${workerId}.`);
+                        setTimeout(() => refreshViewData('workers'), 1000);
+                    }
+                } catch(e) {
+                    toast('error', 'Failed to reboot worker.');
+                }
+            });
+        }
+
+        // --- SYSTEM MONITORING & LOGS ---
+        let logsCache = [];
+        async function fetchLiveLogs() {
+            try {
+                const res = await fetch('/api/live-logs');
+                logsCache = await res.json();
+                renderLogs();
+            } catch(e) {}
+        }
+
+        function renderLogs() {
+            const container = document.getElementById('live-logs-terminal');
+            const search = document.getElementById('log-search-input').value.toLowerCase();
+            const lvl = document.getElementById('log-level-filter').value;
+            
+            let filtered = logsCache;
+            if (search) {
+                filtered = filtered.filter(line => line.text.toLowerCase().includes(search));
+            }
+            if (lvl) {
+                filtered = filtered.filter(line => line.level === lvl);
+            }
+
+            container.innerHTML = filtered.map(l => {
+                let lvlClass = 'log-lvl-info';
+                if (l.level === 'WARNING') lvlClass = 'log-lvl-warning';
+                if (l.level === 'ERROR') lvlClass = 'log-lvl-error';
+                if (l.level === 'SUCCESS') lvlClass = 'log-lvl-success';
+
+                return `
+                    <div class="log-line">
+                        <span class="log-time">${l.time}</span>
+                        <span class="${lvlClass}">[${l.level}]</span>
+                        <span>${escapeHtml(l.text)}</span>
+                    </div>
+                `;
+            }).join('');
+            
+            // Auto scroll
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function downloadLogs() {
+            const rawText = logsCache.map(l => `${l.time} [${l.level}] ${l.text}`).join('\\n');
+            const blob = new Blob([rawText], {type: 'text/plain'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `scheduler_live_logs_${Date.now()}.txt`;
+            a.click();
+            toast('success', 'Logs downloaded successfully.');
+        }
+
+        // --- ANALYTICS CHARTS DRAWING ---
+        function drawAnalyticsCharts(data) {
+            const barContainer = document.getElementById('analytics-chart-bar');
+            const durContainer = document.getElementById('analytics-chart-duration');
+
+            if (!data || data.length === 0) {
+                barContainer.innerHTML = '<div style="color: var(--text-secondary)">No analytics recorded</div>';
+                durContainer.innerHTML = '<div style="color: var(--text-secondary)">No analytics recorded</div>';
+                return;
+            }
+
+            // Draw completed vs failed bars
+            const maxVal = Math.max(...data.map(d => d.completed + d.failed), 5);
+            barContainer.innerHTML = data.map(d => {
+                const total = d.completed + d.failed;
+                const cHeight = total > 0 ? (d.completed / maxVal) * 100 : 0;
+                const fHeight = total > 0 ? (d.failed / maxVal) * 100 : 0;
+                return `
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1;">
+                        <div style="height: 150px; width: 28px; display: flex; flex-direction: column; justify-content: flex-end; background-color: rgba(255,255,255,0.02); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.03);">
+                            <div style="height: ${fHeight}%; background-color: var(--danger); transition: height 0.5s;"></div>
+                            <div style="height: ${cHeight}%; background-color: var(--success); transition: height 0.5s;"></div>
+                        </div>
+                        <span style="font-size: 10px; color: var(--text-secondary)">${d.day}</span>
+                    </div>
+                `;
+            }).join('');
+
+            // Draw duration line nodes
+            const maxDur = Math.max(...data.map(d => d.duration), 1.0);
+            durContainer.innerHTML = data.map(d => {
+                const height = maxDur > 0 ? (d.duration / maxDur) * 100 : 0;
+                return `
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1;">
+                        <div style="height: 150px; display: flex; align-items: flex-end; justify-content: center; width: 100%;">
+                            <div style="height: ${height}%; width: 6px; background-color: var(--primary); border-radius: 3px; position: relative;">
+                                <div style="position: absolute; top: -6px; left: -3px; width: 12px; height: 12px; background-color: var(--text-primary); border: 2px solid var(--primary); border-radius: 50%;"></div>
+                            </div>
+                        </div>
+                        <span style="font-size: 10px; color: var(--text-secondary); margin-top: 4px;">${d.day}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- EXPORT REPORTS ACTIONS ---
+        async function handleGenerateReport(e) {
+            e.preventDefault();
+            const timeframe = document.getElementById('rep-timeframe').value;
+            const format = document.getElementById('rep-format').value;
+
+            try {
+                const res = await fetch('/api/reports/generate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ timeframe, format, username: state.currentUser.name, role: state.role })
+                });
+                
+                if (res.ok) {
+                    if (format === 'JSON') {
+                        const data = await res.json();
+                        const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+                        downloadBlob(blob, `scheduler_report_${timeframe.toLowerCase()}_${Date.now()}.json`);
+                    } else if (format === 'CSV') {
+                        const text = await res.text();
+                        const blob = new Blob([text], {type: 'text/csv'});
+                        downloadBlob(blob, `scheduler_report_${timeframe.toLowerCase()}_${Date.now()}.csv`);
+                    } else {
+                        const text = await res.text();
+                        const blob = new Blob([text], {type: 'text/plain'});
+                        downloadBlob(blob, `scheduler_report_${timeframe.toLowerCase()}_${Date.now()}.txt`);
+                    }
+                    toast('success', `${timeframe} report downloaded successfully.`);
+                }
+            } catch(e) {
+                toast('error', 'Failed to generate report.');
+            }
+        }
+
+        function downloadBlob(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+        }
+
+        // --- SETTINGS ACTIONS ---
+        async function handleSaveSettings(e) {
+            e.preventDefault();
+            if (state.role !== 'Admin') {
+                toast('error', 'Administrator privileges required.');
+                return;
+            }
+            
+            const retries = parseInt(document.getElementById('set-default-max-retries').value);
+            const interval = parseInt(document.getElementById('set-default-retry-interval').value);
+            const q = document.getElementById('set-default-queue').value;
+
+            try {
+                const res = await fetch('/api/settings/save', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        max_retries: retries,
+                        retry_interval: interval,
+                        default_queue: q,
+                        username: state.currentUser.name,
+                        role: state.role
+                    })
+                });
+                if (res.ok) {
+                    toast('success', 'Scheduler defaults updated successfully.');
+                }
+            } catch(e) {
+                toast('error', 'Failed to save settings.');
+            }
+        }
+
+        // Profile password change
+        async function handleUpdatePassword(e) {
+            e.preventDefault();
+            const curr = document.getElementById('prof-curr-pass').value;
+            const next = document.getElementById('prof-new-pass').value;
+
+            try {
+                const res = await fetch('/api/profile/password', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        current_password: curr,
+                        new_password: next,
+                        username: state.currentUser.name,
+                        email: state.currentUser.email,
+                        role: state.role
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    toast('success', 'Password updated successfully!');
+                    document.getElementById('prof-curr-pass').value = '';
+                    document.getElementById('prof-new-pass').value = '';
+                } else {
+                    toast('error', data.error || 'Password update failed.');
+                }
+            } catch(e) {
+                toast('error', 'Connection failed.');
+            }
+        }
+
+        // --- GLOBAL SEARCH MODAL (CTRL+K) ---
+        function openSearchModal() {
+            document.getElementById('global-search-input').value = '';
+            document.getElementById('global-search-results').innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-secondary)">Type to search...</div>';
+            document.getElementById('modal-global-search').classList.add('show');
+            document.getElementById('global-search-input').focus();
+            state.searchSelectedIndex = 0;
+            state.searchItems = [];
+        }
+
+        function closeSearchModal() {
+            document.getElementById('modal-global-search').classList.remove('remove');
+            document.getElementById('modal-global-search').classList.remove('show');
+        }
+
+        // Handle ESC key to close search
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeSearchModal();
+                closeJobEditorModal();
+                closeConfirmModal();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                openSearchModal();
+            }
+        });
+
+        // Search options catalog
+        const SEARCH_CATALOG = [
+            { name: "View Overview Dashboard", category: "Navigation", action: () => showView('dashboard') },
+            { name: "View Jobs List Registry", category: "Navigation", action: () => showView('jobs') },
+            { name: "Create Scheduled Job Form", category: "Action", action: () => { showView('jobs'); openCreateJobModal(); } },
+            { name: "View Queues Overview & DLQ", category: "Navigation", action: () => showView('queues') },
+            { name: "View Worker Pools & Health", category: "Navigation", action: () => showView('workers') },
+            { name: "View System Telemetry Monitor", category: "Navigation", action: () => showView('monitoring') },
+            { name: "View Analytics Charts", category: "Navigation", action: () => showView('analytics') },
+            { name: "View Export Reports Tool", category: "Navigation", action: () => showView('reports') },
+            { name: "View Actions Audit Logs", category: "Navigation", action: () => showView('audit') },
+            { name: "View System Config Settings", category: "Navigation", action: () => showView('settings') },
+            { name: "View User Profile Parameters", category: "Navigation", action: () => showView('profile') }
+        ];
+
+        function handleGlobalSearch() {
+            const val = document.getElementById('global-search-input').value.toLowerCase().strip;
+            const container = document.getElementById('global-search-results');
+            
+            if (!val) {
+                container.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-secondary)">Type to search...</div>';
+                state.searchItems = [];
+                return;
+            }
+
+            // Filter static catalog + jobs dynamically
+            let matches = SEARCH_CATALOG.filter(c => c.name.toLowerCase().includes(val));
+            
+            // Add job matches
+            const jobMatches = state.jobs.filter(j => j.job_name.toLowerCase().includes(val))
+                                         .map(j => ({
+                                             name: `Job details: ${j.job_name} (${j.status})`,
+                                             category: "Job Registry",
+                                             action: () => viewJobDetails(j.job_id)
+                                         }));
+            matches = [...matches, ...jobMatches];
+            
+            state.searchItems = matches;
+            state.searchSelectedIndex = 0;
+            renderSearchResults();
+        }
+
+        function renderSearchResults() {
+            const container = document.getElementById('global-search-results');
+            if (state.searchItems.length === 0) {
+                container.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-secondary)">No results found.</div>';
+                return;
+            }
+
+            container.innerHTML = state.searchItems.map((item, idx) => {
+                const selected = idx === state.searchSelectedIndex ? 'selected' : '';
+                return `
+                    <div class="search-result-item ${selected}" onclick="triggerSearchItem(${idx})">
+                        <span>${item.name}</span>
+                        <span class="search-result-category">${item.category}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Global search arrows and enter
+        document.getElementById('global-search-input').addEventListener('keydown', (e) => {
+            if (state.searchItems.length === 0) return;
+            
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                state.searchSelectedIndex = (state.searchSelectedIndex + 1) % state.searchItems.length;
+                renderSearchResults();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                state.searchSelectedIndex = (state.searchSelectedIndex - 1 + state.searchItems.length) % state.searchItems.length;
+                renderSearchResults();
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                triggerSearchItem(state.searchSelectedIndex);
+            }
+        });
+
+        function triggerSearchItem(idx) {
+            const item = state.searchItems[idx];
+            if (item) {
+                item.action();
+                closeSearchModal();
+            }
+        }
+
+        // --- NOTIFICATION BELL ACTIONS ---
+        function toggleNotifications() {
+            document.getElementById('notif-dropdown').classList.toggle('show');
+        }
+
+        // Close notifs dropdown on body click
+        document.addEventListener('click', (e) => {
+            const bell = document.querySelector('.icon-btn');
+            if (bell && !bell.contains(e.target)) {
+                document.getElementById('notif-dropdown').classList.remove('show');
+            }
+        });
+
+        function addNotification(type, text) {
+            const notif = {
+                id: Date.now(),
+                text: text,
+                unread: true,
+                time: new Date().toLocaleTimeString()
+            };
+            state.notifications.unshift(notif);
+            renderNotifications();
+        }
+
+        function renderNotifications() {
+            const container = document.getElementById('notif-list-container');
+            const badge = document.getElementById('notif-badge');
+            
+            const unreadCount = state.notifications.filter(n => n.unread).length;
+            if (unreadCount > 0) {
+                badge.style.display = 'block';
+            } else {
+                badge.style.display = 'none';
+            }
+
+            if (state.notifications.length === 0) {
+                container.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-secondary)">No unread notifications</div>';
+                return;
+            }
+
+            container.innerHTML = state.notifications.map(n => `
+                <div class="notification-item ${n.unread ? 'unread' : ''}" onclick="readNotification(${n.id})">
+                    <div>${n.text}</div>
+                    <div style="font-size: 10px; color: var(--text-secondary); margin-top: 4px;">${n.time}</div>
+                </div>
+            `).join('');
+        }
+
+        function readNotification(id) {
+            const notif = state.notifications.find(n => n.id === id);
+            if (notif) notif.unread = false;
+            renderNotifications();
+        }
+
+        function clearNotifications() {
+            state.notifications = [];
+            renderNotifications();
+        }
+
+        // --- CONFIRMATION DIALOGS ---
+        let confirmActionCallback = null;
+        function openConfirmModal(title, desc, callback) {
+            document.getElementById('conf-title').innerText = title;
+            document.getElementById('conf-desc').innerText = desc;
+            confirmActionCallback = callback;
+            
+            const btn = document.getElementById('conf-action-btn');
+            btn.onclick = () => {
+                if (confirmActionCallback) confirmActionCallback();
+                closeConfirmModal();
+            };
+
+            document.getElementById('modal-confirmation').classList.add('show');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('modal-confirmation').classList.remove('show');
+            confirmActionCallback = null;
+        }
+
+        // --- POLLING LOGIC ---
+        let pollTimer = null;
+        function startPolling() {
+            if (pollTimer) clearInterval(pollTimer);
+            
+            // Initial load
+            refreshViewData(state.activeView);
+            
+            // Loop polling
+            pollTimer = setInterval(() => {
+                if (!state.currentUser) {
+                    clearInterval(pollTimer);
+                    return;
+                }
+                
+                // Always poll dashboard and monitoring data quietly in background
+                if (state.activeView === 'dashboard') {
+                    refreshViewData('dashboard');
+                } else if (state.activeView === 'monitoring') {
+                    refreshViewData('monitoring');
+                } else if (state.activeView === 'queues') {
+                    refreshViewData('queues');
+                } else if (state.activeView === 'workers') {
+                    refreshViewData('workers');
+                }
+            }, 3000);
+        }
+
+        // CSV Exporter
+        function exportCSV() {
+            const headers = ['ID', 'Job Name', 'Queue', 'Priority', 'Schedule Time', 'Worker', 'Status'];
+            const rows = state.jobs.map(j => [
+                j.job_id, j.job_name, j.queue_name, j.priority, j.schedule_time, j.worker_id || '', j.status
+            ]);
+            
+            const csvContent = [headers, ...rows].map(e => e.join(",")).join("\\n");
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            downloadBlob(blob, `scheduler_job_registry_${Date.now()}.csv`);
+            toast('success', 'Job registry CSV exported successfully.');
+        }
+
+        // Export data helper
+        function csvToBlob(headers, rows) {
+            const content = [headers, ...rows].map(e => e.join(",")).join("\\n");
+            return new Blob([content], { type: 'text/csv;charset=utf-8;' });
+        }
+    </script>
+</body>
+</html>

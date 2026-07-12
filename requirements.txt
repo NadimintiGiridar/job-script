@@ -1,0 +1,6 @@
+# Production-Quality Python Job Scheduler
+# Built with Python Standard Library. No external dependencies required!
+# Requires Python 3.11+
+
+# Testing and development tools (optional)
+# coverage==7.4.0
